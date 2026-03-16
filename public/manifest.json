@@ -1,0 +1,42 @@
+{
+  "name": "IRON TEMPLE - Gym Management",
+  "short_name": "IRON TEMPLE",
+  "description": "Premium Gym Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "business"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Pending Payments",
+      "short_name": "Pending",
+      "description": "View pending payments",
+      "url": "/?tab=pending",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Add Member",
+      "short_name": "Add",
+      "description": "Add new member",
+      "url": "/?tab=admission",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

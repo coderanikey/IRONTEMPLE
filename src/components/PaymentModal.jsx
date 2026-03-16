@@ -1,0 +1,223 @@
+import { useState } from 'react';
+import { paymentService } from '../services/paymentService';
+import { format, addMonths, startOfMonth } from 'date-fns';
+
+const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
+  const [selectedMonths, setSelectedMonths] = useState(1);
+  const [amountPaid, setAmountPaid] = useState('');
+  const [customDate, setCustomDate] = useState('');
+  const [useCustomDate, setUseCustomDate] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Generate 1-12 months options
+  const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+
+  const calculateExpectedAmount = () => {
+    return selectedMonths * (member.monthlyFee || 1000);
+  };
+
+  const calculateNewDueDate = () => {
+    if (useCustomDate && customDate) {
+      const startDate = startOfMonth(new Date(customDate));
+      return addMonths(startDate, selectedMonths);
+    }
+    const baseDate = member.nextDueDate ? new Date(member.nextDueDate) : new Date();
+    return addMonths(startOfMonth(baseDate), selectedMonths);
+  };
+
+  const handlePayment = async () => {
+    if (!selectedMonths) {
+      setError('Please select payment duration');
+      return;
+    }
+
+    if (!amountPaid || parseFloat(amountPaid) <= 0) {
+      setError('Please enter the amount paid');
+      return;
+    }
+
+    if (useCustomDate && !customDate) {
+      setError('Please select a custom start date');
+      return;
+    }
+
+    setProcessing(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const paymentDate = useCustomDate && customDate 
+        ? startOfMonth(new Date(customDate)).toISOString()
+        : new Date().toISOString();
+
+      paymentService.processPayment(
+        member.uniqueId, 
+        selectedMonths, 
+        parseFloat(amountPaid),
+        paymentDate
+      );
+      
+      setSuccess(`Payment of ₹${amountPaid} processed successfully!`);
+      
+      setTimeout(() => {
+        onPaymentComplete();
+      }, 1500);
+    } catch (err) {
+      setError(err.message || 'Payment processing failed');
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content" style={{ maxWidth: '600px' }}>
+        <div className="modal-header">
+          <h2>Process Payment</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ marginBottom: '8px', color: '#111827' }}>{member.name}</h3>
+          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
+            Unique ID: <strong>{member.uniqueId}</strong>
+          </p>
+          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
+            Admission Date: <strong>{format(new Date(member.joinDate), 'dd MMM yyyy')}</strong>
+          </p>
+          {member.lastPaymentDate && (
+            <p style={{ color: '#6b7280', marginBottom: '4px' }}>
+              Last Payment Date: <strong>{format(new Date(member.lastPaymentDate), 'dd MMM yyyy')}</strong>
+            </p>
+          )}
+          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
+            Current Due Date: <strong>{format(new Date(member.nextDueDate || member.joinDate), 'dd MMM yyyy')}</strong>
+          </p>
+          <p style={{ color: '#6b7280' }}>
+            Monthly Fee: <strong>₹{member.monthlyFee || 1000}</strong>
+          </p>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="months">Payment Duration (Months) *</label>
+          <select
+            id="months"
+            value={selectedMonths}
+            onChange={(e) => {
+              setSelectedMonths(parseInt(e.target.value));
+              setError('');
+            }}
+            style={{ marginBottom: '12px' }}
+          >
+            {monthOptions.map(months => (
+              <option key={months} value={months}>
+                {months} {months === 1 ? 'Month' : 'Months'}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="amount">Amount Paid (₹) *</label>
+          <input
+            type="number"
+            id="amount"
+            value={amountPaid}
+            onChange={(e) => {
+              setAmountPaid(e.target.value);
+              setError('');
+            }}
+            placeholder={`Expected: ₹${calculateExpectedAmount()}`}
+            min="0"
+            step="100"
+            required
+          />
+          <small style={{ color: '#6b7280', display: 'block', marginTop: '-8px', marginBottom: '12px' }}>
+            Expected amount: ₹{calculateExpectedAmount()}
+          </small>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={useCustomDate}
+              onChange={(e) => {
+                setUseCustomDate(e.target.checked);
+                if (!e.target.checked) setCustomDate('');
+                setError('');
+              }}
+            />
+            <span>Modify Payment Start Date (for members returning after long time)</span>
+          </label>
+          
+          {useCustomDate && (
+            <div style={{ marginTop: '12px' }}>
+              <label htmlFor="customDate">Select Start Date for Gym Month *</label>
+              <input
+                type="date"
+                id="customDate"
+                value={customDate}
+                onChange={(e) => {
+                  setCustomDate(e.target.value);
+                  setError('');
+                }}
+                max={new Date().toISOString().split('T')[0]}
+                required={useCustomDate}
+              />
+              <small style={{ color: '#6b7280', display: 'block', marginTop: '4px' }}>
+                The gym month will start from the 1st of the selected month
+              </small>
+            </div>
+          )}
+        </div>
+
+        {selectedMonths && (
+          <div style={{ marginTop: '20px', padding: '16px', background: '#f0f4ff', borderRadius: '8px' }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: '500' }}>
+              Payment Date: <strong>
+                {useCustomDate && customDate 
+                  ? format(startOfMonth(new Date(customDate)), 'dd MMM yyyy')
+                  : format(new Date(), 'dd MMM yyyy')
+                }
+              </strong>
+            </p>
+            <p style={{ margin: '0', fontWeight: '500' }}>
+              New Due Date: <strong>
+                {format(calculateNewDueDate(), 'dd MMM yyyy')}
+              </strong>
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ color: '#ef4444', marginTop: '16px', padding: '10px', background: '#fee2e2', borderRadius: '6px' }}>
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div style={{ color: '#059669', marginTop: '16px', padding: '10px', background: '#d1fae5', borderRadius: '6px' }}>
+            {success}
+          </div>
+        )}
+
+        <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <button className="btn btn-secondary" onClick={onClose} disabled={processing}>
+            Cancel
+          </button>
+          <button
+            className="btn btn-success"
+            onClick={handlePayment}
+            disabled={!amountPaid || processing}
+          >
+            {processing ? 'Processing...' : 'Confirm Payment'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentModal;
