@@ -3,6 +3,7 @@
   "short_name": "IRON TEMPLE",
   "description": "Premium Gym Management System",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
