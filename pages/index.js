@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { api } from '../src/api/api';
 
 // Dynamically import components to avoid SSR issues
 const MemberAdmission = dynamic(() => import('../components/MemberAdmission'), { ssr: false });
@@ -10,6 +11,13 @@ const DiscontinuedMembers = dynamic(() => import('../components/DiscontinuedMemb
 export default function Home() {
   const [activeTab, setActiveTab] = useState('pending');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showDemoBanner, setShowDemoBanner] = useState(false);
+
+  useEffect(() => {
+    const handleDemoMode = () => setShowDemoBanner(true);
+    window.addEventListener('apiDemoMode', handleDemoMode);
+    return () => window.removeEventListener('apiDemoMode', handleDemoMode);
+  }, []);
 
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
@@ -17,36 +25,20 @@ export default function Home() {
 
   return (
     <div className="container">
-      <div style={{ 
-        textAlign: 'center', 
-        marginBottom: '48px', 
-        color: 'white',
-        textShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-      }}>
-        <h1 style={{ 
-          fontSize: 'clamp(36px, 5vw, 64px)', 
-          marginBottom: '16px',
-          fontWeight: '800',
-          fontFamily: "'Poppins', sans-serif",
-          background: 'linear-gradient(135deg, #fff 0%, #f0f0f0 50%, #fff 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          letterSpacing: '-1px',
-          lineHeight: '1.2'
-        }}>
-          🏋️ IRON TEMPLE
-        </h1>
-        <p style={{ 
-          fontSize: 'clamp(16px, 2vw, 22px)', 
-          opacity: 0.95, 
-          fontWeight: '400',
-          letterSpacing: '0.3px',
-          maxWidth: '600px',
-          margin: '0 auto'
-        }}>
-          Premium Gym Management System
-        </p>
+      {showDemoBanner && (
+        <div className="demo-banner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Demo mode — showing sample data. Connect MongoDB in .env.local to save changes.</span>
+        </div>
+      )}
+
+      <div className="hero-header">
+        <h1 className="hero-title">🏋️ Iron Temple</h1>
+        <p className="hero-subtitle">Premium Gym Management</p>
       </div>
 
       <div className="nav-tabs">

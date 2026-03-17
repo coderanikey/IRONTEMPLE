@@ -41,7 +41,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
         loadDiscontinuedMembers();
         onMemberUpdated && onMemberUpdated();
       } catch (error) {
-        alert('Failed to delete member: ' + error.message);
+        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
       }
     }
   };
@@ -62,7 +62,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
     <>
       <div className="card">
         <h2>Discontinued Members</h2>
-        <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+        <p className="card-description">
           Members who have been discontinued. Click "Continue" to resume their membership with new payment.
         </p>
         <table>

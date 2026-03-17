@@ -1,6 +1,6 @@
-import connectDB from '../../lib/mongodb';
-import Payment from '../../models/Payment';
-import Member from '../../models/Member';
+import connectDB from '../../../lib/mongodb';
+import Payment from '../../../models/Payment';
+import Member from '../../../models/Member';
 
 export default async function handler(req, res) {
   await connectDB();

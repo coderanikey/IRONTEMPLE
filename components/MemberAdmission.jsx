@@ -101,7 +101,9 @@ const MemberAdmission = ({ onMemberAdded }) => {
       onMemberAdded && onMemberAdded();
       resetForm();
     } catch (err) {
-      if (err.message.includes('already exists')) {
+      if (api.usingDemoData) {
+        setError('Demo mode: Connect MongoDB in .env.local to save new members.');
+      } else if (err.message.includes('already exists')) {
         setError(err.message);
       } else {
         setError('Failed to add member. Please try again.');
@@ -251,15 +253,11 @@ const MemberAdmission = ({ onMemberAdded }) => {
         </div>
 
         {error && (
-          <div style={{ color: '#ef4444', marginBottom: '12px', padding: '10px', background: '#fee2e2', borderRadius: '6px' }}>
-            {error}
-          </div>
+          <div className="form-error">{error}</div>
         )}
 
         {success && (
-          <div style={{ color: '#059669', marginBottom: '12px', padding: '10px', background: '#d1fae5', borderRadius: '6px' }}>
-            {success}
-          </div>
+          <div className="form-success">{success}</div>
         )}
 
         <button type="submit" className="btn btn-primary">

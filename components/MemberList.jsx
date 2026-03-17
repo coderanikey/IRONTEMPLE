@@ -25,7 +25,7 @@ const MemberList = ({ refreshTrigger }) => {
         await api.updateMember(uniqueId, { isActive: false });
         loadMembers();
       } catch (error) {
-        alert('Failed to deactivate member: ' + error.message);
+        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to deactivate member: ' + error.message);
       }
     }
   };
@@ -34,9 +34,9 @@ const MemberList = ({ refreshTrigger }) => {
     try {
       await api.updateMember(uniqueId, { isActive: true });
       loadMembers();
-    } catch (error) {
-      alert('Failed to activate member: ' + error.message);
-    }
+      } catch (error) {
+        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to activate member: ' + error.message);
+      }
   };
 
   const handleDelete = async (uniqueId) => {
@@ -45,7 +45,7 @@ const MemberList = ({ refreshTrigger }) => {
         await api.deleteMember(uniqueId);
         loadMembers();
       } catch (error) {
-        alert('Failed to delete member: ' + error.message);
+        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
       }
     }
   };

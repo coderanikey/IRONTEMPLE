@@ -41,7 +41,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
         loadPendingPayments();
         onPaymentProcessed && onPaymentProcessed();
       } catch (error) {
-        alert('Failed to discontinue member: ' + error.message);
+        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to discontinue member: ' + error.message);
       }
     }
   };
@@ -72,7 +72,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
     <>
       <div className="card">
         <h2>Pending Payments - {format(new Date(), 'MMMM yyyy')}</h2>
-        <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+        <p className="card-description">
           Members with pending payments for this month
         </p>
         <table>

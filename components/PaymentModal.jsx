@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { paymentService } from '../src/services/paymentService';
+import { api } from '../src/api/api';
 import { format, addMonths, startOfMonth } from 'date-fns';
 import { preventZoom, restoreZoom } from './MobileOptimized';
 
@@ -8,6 +9,7 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
   const [amountPaid, setAmountPaid] = useState('');
   const [customDate, setCustomDate] = useState('');
   const [useCustomDate, setUseCustomDate] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -67,7 +69,7 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
         onPaymentComplete();
       }, 1500);
     } catch (err) {
-      setError(err.message || 'Payment processing failed');
+      setError(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to process payments.' : (err.message || 'Payment processing failed'));
       setProcessing(false);
     }
   };
@@ -80,25 +82,29 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ marginBottom: '8px', color: '#111827' }}>{member.name}</h3>
-          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
-            Unique ID: <strong>{member.uniqueId}</strong>
-          </p>
-          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
-            Admission Date: <strong>{format(new Date(member.joinDate), 'dd MMM yyyy')}</strong>
-          </p>
+        <div className="member-info">
+          <h3>{member.name}</h3>
+          <p>Unique ID: <strong>{member.uniqueId}</strong></p>
+          <p>Admission Date: <strong>{format(new Date(member.joinDate), 'dd MMM yyyy')}</strong></p>
           {member.lastPaymentDate && (
-            <p style={{ color: '#6b7280', marginBottom: '4px' }}>
-              Last Payment Date: <strong>{format(new Date(member.lastPaymentDate), 'dd MMM yyyy')}</strong>
-            </p>
+            <p>Last Payment Date: <strong>{format(new Date(member.lastPaymentDate), 'dd MMM yyyy')}</strong></p>
           )}
-          <p style={{ color: '#6b7280', marginBottom: '4px' }}>
-            Current Due Date: <strong>{format(new Date(member.nextDueDate || member.joinDate), 'dd MMM yyyy')}</strong>
-          </p>
-          <p style={{ color: '#6b7280' }}>
-            Monthly Fee: <strong>₹{member.monthlyFee || 1000}</strong>
-          </p>
+          <p>Current Due Date: <strong>{format(new Date(member.nextDueDate || member.joinDate), 'dd MMM yyyy')}</strong></p>
+          <p>Monthly Fee: <strong>₹{member.monthlyFee || 1000}</strong></p>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="paymentMethod">Payment Method</label>
+          <select
+            id="paymentMethod"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            style={{ marginBottom: '12px' }}
+          >
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+          </select>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
@@ -178,7 +184,7 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
         </div>
 
         {selectedMonths && (
-          <div style={{ marginTop: '20px', padding: '16px', background: '#f0f4ff', borderRadius: '8px' }}>
+          <div className="payment-summary">
             <p style={{ margin: '0 0 8px 0', fontWeight: '500' }}>
               Payment Date: <strong>
                 {useCustomDate && customDate 
@@ -196,15 +202,11 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
         )}
 
         {error && (
-          <div style={{ color: '#ef4444', marginTop: '16px', padding: '10px', background: '#fee2e2', borderRadius: '6px' }}>
-            {error}
-          </div>
+          <div className="form-error" style={{ marginTop: '16px' }}>{error}</div>
         )}
 
         {success && (
-          <div style={{ color: '#059669', marginTop: '16px', padding: '10px', background: '#d1fae5', borderRadius: '6px' }}>
-            {success}
-          </div>
+          <div className="form-success" style={{ marginTop: '16px' }}>{success}</div>
         )}
 
         <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
