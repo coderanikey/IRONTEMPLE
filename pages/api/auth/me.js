@@ -19,14 +19,22 @@ export default async function handler(req, res) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  await connectDB();
-  const user = await User.findById(session.userId).select('email isAdmin');
-  if (!user) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  try {
+    await connectDB();
+    const user = await User.findById(session.userId).select('email isAdmin');
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-  return res.status(200).json({
-    user: { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
-  });
+    return res.status(200).json({
+      user: { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
+    });
+  } catch (error) {
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
+  }
 }
 

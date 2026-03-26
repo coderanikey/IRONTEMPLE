@@ -13,7 +13,15 @@ export default async function handler(req, res) {
   if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
   if (!session?.isAdmin) return res.status(403).json({ message: 'Forbidden' });
 
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (error) {
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
+  }
   const { id } = req.query;
 
   if (req.method === 'DELETE') {

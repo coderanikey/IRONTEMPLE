@@ -45,8 +45,11 @@ export default async function handler(req, res) {
       validTill: validTill ? validTill.toISOString().slice(0, 10) : null,
     });
   } catch (error) {
-    console.error('Validity check error:', error);
-    return res.status(500).json({ message: 'Error checking validity', error: error.message });
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
   }
 }
 

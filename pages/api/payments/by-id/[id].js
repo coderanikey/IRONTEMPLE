@@ -17,7 +17,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (error) {
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
+  }
   const { id } = req.query;
   const payment = await Payment.findById(id);
   if (!payment) return res.status(404).json({ message: 'Receipt not found' });

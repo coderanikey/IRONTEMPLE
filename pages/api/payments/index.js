@@ -13,7 +13,15 @@ export default async function handler(req, res) {
   const session = requireAuth(req);
   if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
 
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (error) {
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
+  }
 
   if (req.method === 'GET') {
     try {

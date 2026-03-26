@@ -19,7 +19,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    await connectDB();
+    try {
+      await connectDB();
+    } catch (error) {
+      const status = Number(error?.publicStatus || 503);
+      return res.status(status).json({
+        message: error?.publicMessage || 'Database unavailable',
+        hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+      });
+    }
     const { email, password, inviteKey } = req.body || {};
 
     const rawInviteKey = String(inviteKey || '').trim();

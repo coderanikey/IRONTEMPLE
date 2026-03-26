@@ -15,7 +15,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (error) {
+    const status = Number(error?.publicStatus || 503);
+    return res.status(status).json({
+      message: error?.publicMessage || 'Database unavailable',
+      hint: error?.publicHint || 'Check MongoDB Atlas Network Access (IP allowlist) and connection string.',
+    });
+  }
 
   const { email, password } = req.body || {};
   const normalizedEmail = String(email || '').trim().toLowerCase().replace(/\^/g, '');
