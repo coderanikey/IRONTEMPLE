@@ -93,7 +93,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
               <th>Next Due Date</th>
               <th>Status</th>
               <th>Monthly Fee</th>
-              <th>Actions</th>
+              <th className="actions-col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -105,7 +105,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
                 <td>{format(new Date(member.nextDueDate), 'dd MMM yyyy')}</td>
                 <td>{getStatusBadge(member.daysOverdue)}</td>
                 <td>₹{member.monthlyFee || 1000}</td>
-                <td>
+                <td className="actions-col">
                   <div className="action-row">
                     <button
                       className="btn btn-success"

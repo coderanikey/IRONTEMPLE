@@ -84,7 +84,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
               <th>Last Payment Date</th>
               <th>Discontinued Date</th>
               <th>Monthly Fee</th>
-              <th>Actions</th>
+              <th className="actions-col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -98,7 +98,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
                 <td>{member.lastPaymentDate ? format(new Date(member.lastPaymentDate), 'dd MMM yyyy') : 'N/A'}</td>
                 <td>{member.discontinuedDate ? format(new Date(member.discontinuedDate), 'dd MMM yyyy') : 'N/A'}</td>
                 <td>₹{member.monthlyFee || 1000}</td>
-                <td>
+                <td className="actions-col">
                   <div className="action-row">
                     <button
                       className="btn btn-success"

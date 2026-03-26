@@ -126,7 +126,7 @@ const MemberList = ({ refreshTrigger }) => {
                 <th>Join Date</th>
                 <th>Monthly Fee</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th className="actions-col">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -150,7 +150,7 @@ const MemberList = ({ refreshTrigger }) => {
                       <span className="badge badge-danger">Inactive</span>
                     )}
                   </td>
-                  <td>
+                  <td className="actions-col">
                     <div className="action-row">
                       <button
                         className="btn btn-secondary"

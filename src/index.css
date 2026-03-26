@@ -388,6 +388,22 @@ tbody tr:hover {
   background: var(--primary-pastel);
 }
 
+.actions-col {
+  min-width: 260px;
+}
+
+@media (max-width: 768px) {
+  .actions-col {
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 520px) {
+  .actions-col {
+    min-width: 220px;
+  }
+}
+
 .action-row {
   display: flex;
   gap: 8px;
