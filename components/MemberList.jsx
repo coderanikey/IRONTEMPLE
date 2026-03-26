@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../src/api/api';
 import { format } from 'date-fns';
-import EditMemberModal from './EditMemberModal';
+import { useRouter } from 'next/router';
 
 const MemberList = ({ refreshTrigger }) => {
+  const router = useRouter();
   const [members, setMembers] = useState([]);
   const [filter, setFilter] = useState('all'); // all, active, inactive
   const [query, setQuery] = useState('');
-  const [editing, setEditing] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -76,6 +76,10 @@ const MemberList = ({ refreshTrigger }) => {
   const endIdx = startIdx + itemsPerPage;
   const paginatedMembers = visibleMembers.slice(startIdx, endIdx);
 
+  const goEdit = (uniqueId) => {
+    router.push(`/members/${encodeURIComponent(uniqueId)}/edit`);
+  };
+
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -130,7 +134,7 @@ const MemberList = ({ refreshTrigger }) => {
                 <tr
                   key={member.uniqueId}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => setEditing(member)}
+                  onClick={() => goEdit(member.uniqueId)}
                   title="Click to edit member"
                 >
                   <td>{member.uniqueId}</td>
@@ -161,7 +165,7 @@ const MemberList = ({ refreshTrigger }) => {
                         className="btn btn-primary"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setEditing(member);
+                          goEdit(member.uniqueId);
                         }}
                       >
                         Edit
@@ -233,14 +237,6 @@ const MemberList = ({ refreshTrigger }) => {
           )}
         </>
       )}
-
-      {editing ? (
-        <EditMemberModal
-          member={editing}
-          onClose={() => setEditing(null)}
-          onSaved={() => loadMembers()}
-        />
-      ) : null}
     </div>
   );
 };

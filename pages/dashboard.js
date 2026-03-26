@@ -19,6 +19,13 @@ export default function Dashboard() {
   const [showDemoBanner, setShowDemoBanner] = useState(false);
 
   useEffect(() => {
+    const tab = typeof router.query.tab === 'string' ? router.query.tab : '';
+    if (tab === 'pending' || tab === 'admission' || tab === 'members' || tab === 'discontinued' || tab === 'validity') {
+      setActiveTab(tab);
+    }
+  }, [router.query.tab]);
+
+  useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
