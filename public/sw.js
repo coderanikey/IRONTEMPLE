@@ -7,8 +7,6 @@ const APP_SHELL = [
   '/register',
   '/check',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -51,7 +49,9 @@ self.addEventListener('fetch', (event) => {
             url.pathname.endsWith('.jpeg') ||
             url.pathname.endsWith('.svg') ||
             url.pathname.endsWith('.css') ||
-            url.pathname.endsWith('.js');
+            url.pathname.endsWith('.js') ||
+            url.pathname.endsWith('.woff') ||
+            url.pathname.endsWith('.woff2');
           if (isStatic) {
             const copy = res.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
@@ -62,4 +62,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-

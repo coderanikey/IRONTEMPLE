@@ -1,8 +1,14 @@
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../models/User';
-import { requireAuth } from '../../../../lib/auth';
+import { requireAuth, setCorsHeaders, handleCorsPreFlight } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
+  setCorsHeaders(res);
+
+  if (handleCorsPreFlight(req, res)) {
+    return res.status(200).end();
+  }
+
   const session = requireAuth(req);
   if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
   if (!session?.isAdmin) return res.status(403).json({ message: 'Forbidden' });
