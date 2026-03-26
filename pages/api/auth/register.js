@@ -73,32 +73,4 @@ export default async function handler(req, res) {
   }
 }
 
-    const passwordHash = await bcrypt.hash(rawPassword, 12);
-
-    const user = await User.create({
-      email: normalizedEmail,
-      passwordHash,
-      isAdmin: userCount === 0, // first user becomes admin
-    });
-
-    const token = signAuthToken({
-      userId: user._id.toString(),
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-    setAuthCookie(res, token);
-
-    return res.status(201).json({
-      user: { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
-    });
-  } catch (err) {
-    const msg = String(err?.message || 'Internal Server Error');
-    if (msg.includes('ECONNREFUSED') || msg.toLowerCase().includes('serverselection')) {
-      return res.status(500).json({
-        message: 'Database connection failed. Set MONGODB_URI to your MongoDB Atlas URI or start local MongoDB on 27017.',
-      });
-    }
-    return res.status(500).json({ message: msg });
-  }
-}
 
