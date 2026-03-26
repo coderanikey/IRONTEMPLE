@@ -104,16 +104,14 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
   return (
     <div className="modal modal-fullscreen" onClick={onClose} role="dialog" aria-modal="true">
       <div className="modal-content modal-content-wide modal-content-fullscreen" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+        <div className="modal-header modal-header-tight">
           <div style={{ minWidth: 0 }}>
-            <h2>Edit Member</h2>
-            <div className="member-info" style={{ marginTop: 10 }}>
-              <h3 style={{ marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {member.name}
-              </h3>
-              <p style={{ margin: 0 }}>
+            <h2 style={{ marginBottom: 6 }}>Edit Member</h2>
+            <div className="modal-subhead">
+              <div className="modal-subhead-title">{member.name}</div>
+              <div className="modal-subhead-meta">
                 Member ID: <strong>{member.uniqueId}</strong>
-              </p>
+              </div>
             </div>
           </div>
           <button className="close-btn" onClick={onClose} type="button" aria-label="Close">
@@ -121,8 +119,9 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
           </button>
         </div>
 
-        <form onSubmit={onSubmit}>
-          <div className="form-grid">
+        <div className="modal-body">
+          <form onSubmit={onSubmit}>
+            <div className="form-grid">
             <div>
               <label htmlFor="name">Full Name *</label>
               <input id="name" value={form.name} onChange={(e) => setField('name', e.target.value)} required />
@@ -179,34 +178,35 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
                 onChange={(e) => setField('nextDueDate', e.target.value)}
               />
             </div>
-          </div>
+            </div>
 
-          <div className="modal-toggle-row">
-            <label className="modal-toggle">
-              <input type="checkbox" checked={form.isActive} onChange={(e) => setField('isActive', e.target.checked)} />
-              <span>Active</span>
-            </label>
-            <label className="modal-toggle">
-              <input
-                type="checkbox"
-                checked={form.isDiscontinued}
-                onChange={(e) => setField('isDiscontinued', e.target.checked)}
-              />
-              <span>Discontinued</span>
-            </label>
-          </div>
+            <div className="modal-toggle-row">
+              <label className="modal-toggle">
+                <input type="checkbox" checked={form.isActive} onChange={(e) => setField('isActive', e.target.checked)} />
+                <span>Active</span>
+              </label>
+              <label className="modal-toggle">
+                <input
+                  type="checkbox"
+                  checked={form.isDiscontinued}
+                  onChange={(e) => setField('isDiscontinued', e.target.checked)}
+                />
+                <span>Discontinued</span>
+              </label>
+            </div>
 
-          {error ? <div className="form-error" style={{ marginTop: 16 }}>{error}</div> : null}
+            {error ? <div className="form-error" style={{ marginTop: 16 }}>{error}</div> : null}
 
-          <div className="modal-actions">
-            <button className="btn btn-secondary" type="button" onClick={onClose} disabled={saving}>
-              Cancel
-            </button>
-            <button className="btn btn-primary" type="submit" disabled={saving}>
-              {saving ? 'Saving…' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
+            <div className="modal-actions modal-actions-sticky">
+              <button className="btn btn-secondary" type="button" onClick={onClose} disabled={saving}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" type="submit" disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

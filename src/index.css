@@ -533,6 +533,9 @@ tbody tr:last-child td {
   max-width: 100%;
   margin: 0;
   border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-content-fullscreen .modal-header {
@@ -542,8 +545,60 @@ tbody tr:last-child td {
   z-index: 2;
 }
 
-.modal-content-fullscreen form {
-  padding-bottom: 12px;
+.modal-header-tight {
+  margin-bottom: 0;
+  padding-bottom: 14px;
+}
+
+.modal-subhead {
+  display: grid;
+  gap: 2px;
+  color: rgba(17, 24, 39, 0.72);
+}
+
+.modal-subhead-title {
+  font-weight: 800;
+  color: var(--text-primary);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-subhead-meta {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 28px 18px;
+}
+
+@media (min-width: 641px) {
+  .modal-body {
+    padding: 28px 40px 22px;
+  }
+}
+
+.modal-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 12px;
+  padding-bottom: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.modal-actions-sticky::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -16px;
+  height: 16px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
 }
 
 .modal-grid {
