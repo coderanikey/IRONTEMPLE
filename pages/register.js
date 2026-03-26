@@ -2,25 +2,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useToast } from '../src/ui/toast';
-import { useAuth } from '../src/auth/useAuth';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { push: toast } = useToast();
-  const { user, loading: loadingMe } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteKey, setInviteKey] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (loadingMe) return;
-    if (user) {
-      const next = typeof router.query.next === 'string' ? router.query.next : '/';
-      router.replace(next);
-    }
-  }, [loadingMe, user, router]);
+  // We intentionally do NOT call /api/auth/me here.
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +27,7 @@ export default function RegisterPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || 'Registration failed');
       toast({ type: 'success', title: 'Account created', message: 'You are now logged in.' });
-      const next = typeof router.query.next === 'string' ? router.query.next : '/';
+      const next = typeof router.query.next === 'string' ? router.query.next : '/dashboard';
       router.push(next);
     } catch (err) {
       setError(err.message);

@@ -1,10 +1,17 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { useAuth } from '../src/auth/useAuth';
 
 export default function TopBar() {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, refresh } = useAuth();
+
+  useEffect(() => {
+    // TopBar only appears on authenticated pages, so check session here.
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="topbar">
