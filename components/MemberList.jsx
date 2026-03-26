@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { api } from '../src/api/api';
 import { format } from 'date-fns';
+import EditMemberModal from './EditMemberModal';
 
 const MemberList = ({ refreshTrigger }) => {
   const [members, setMembers] = useState([]);
   const [filter, setFilter] = useState('all'); // all, active, inactive
+  const [query, setQuery] = useState('');
+  const [editing, setEditing] = useState(null);
 
   useEffect(() => {
     loadMembers();
@@ -25,7 +28,7 @@ const MemberList = ({ refreshTrigger }) => {
         await api.updateMember(uniqueId, { isActive: false });
         loadMembers();
       } catch (error) {
-        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to deactivate member: ' + error.message);
+        alert(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to deactivate member: ' + error.message);
       }
     }
   };
@@ -35,7 +38,7 @@ const MemberList = ({ refreshTrigger }) => {
       await api.updateMember(uniqueId, { isActive: true });
       loadMembers();
       } catch (error) {
-        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to activate member: ' + error.message);
+        alert(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to activate member: ' + error.message);
       }
   };
 
@@ -45,7 +48,7 @@ const MemberList = ({ refreshTrigger }) => {
         await api.deleteMember(uniqueId);
         loadMembers();
       } catch (error) {
-        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
+        alert(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
       }
     }
   };
@@ -56,25 +59,41 @@ const MemberList = ({ refreshTrigger }) => {
     return true;
   });
 
+  const q = query.trim().toLowerCase();
+  const visibleMembers = filteredMembers.filter((m) => {
+    if (!q) return true;
+    const name = String(m.name || '').toLowerCase();
+    const phone = String(m.phone || '').toLowerCase();
+    return name.includes(q) || phone.includes(q);
+  });
+
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>All Members</h2>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          style={{ width: 'auto', padding: '8px 16px' }}
-        >
-          <option value="all">All Members</option>
-          <option value="active">Active Only</option>
-          <option value="inactive">Inactive Only</option>
-        </select>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name or phone…"
+            style={{ width: 260, marginBottom: 0 }}
+          />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            style={{ width: 'auto', padding: '12px 14px', marginBottom: 0 }}
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
       </div>
 
-      {filteredMembers.length === 0 ? (
+      {visibleMembers.length === 0 ? (
         <div className="empty-state">
           <h3>No Members Found</h3>
-          <p>Add your first member using the Member Admission form.</p>
+          <p>{query ? 'Try a different search.' : 'Add your first member using the Member Admission form.'}</p>
         </div>
       ) : (
         <table>
@@ -91,8 +110,13 @@ const MemberList = ({ refreshTrigger }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredMembers.map((member) => (
-              <tr key={member.uniqueId}>
+            {visibleMembers.map((member) => (
+              <tr
+                key={member.uniqueId}
+                style={{ cursor: 'pointer' }}
+                onClick={() => setEditing(member)}
+                title="Click to edit member"
+              >
                 <td>{member.uniqueId}</td>
                 <td>{member.name}</td>
                 <td>{member.phone || 'N/A'}</td>
@@ -107,28 +131,52 @@ const MemberList = ({ refreshTrigger }) => {
                   )}
                 </td>
                 <td>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="action-row">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.assign(`/member-card/${member.uniqueId}`);
+                      }}
+                    >
+                      ID Card
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditing(member);
+                      }}
+                    >
+                      Edit
+                    </button>
                     {member.isActive ? (
                       <button
                         className="btn btn-danger"
-                        onClick={() => handleDeactivate(member.uniqueId)}
-                        style={{ padding: '6px 12px', fontSize: '14px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeactivate(member.uniqueId);
+                        }}
                       >
                         Deactivate
                       </button>
                     ) : (
                       <button
                         className="btn btn-success"
-                        onClick={() => handleActivate(member.uniqueId)}
-                        style={{ padding: '6px 12px', fontSize: '14px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleActivate(member.uniqueId);
+                        }}
                       >
                         Activate
                       </button>
                     )}
                     <button
                       className="btn btn-danger"
-                      onClick={() => handleDelete(member.uniqueId)}
-                      style={{ padding: '6px 12px', fontSize: '14px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(member.uniqueId);
+                      }}
                     >
                       Delete
                     </button>
@@ -139,6 +187,14 @@ const MemberList = ({ refreshTrigger }) => {
           </tbody>
         </table>
       )}
+
+      {editing ? (
+        <EditMemberModal
+          member={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => loadMembers()}
+        />
+      ) : null}
     </div>
   );
 };

@@ -11,6 +11,20 @@ export let usingDemoData = false;
 // Helper function to handle API responses
 const handleResponse = async (response) => {
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      const error = await response.json().catch(() => ({}));
+      const msg = error.message || 'Unauthorized';
+      const e = new Error(msg);
+      e.code = response.status;
+      if (typeof window !== 'undefined') {
+        const path = window.location?.pathname || '/';
+        const isAuthPage = path === '/login' || path === '/register';
+        if (!isAuthPage) {
+          window.location.assign(`/login?next=${encodeURIComponent(path)}`);
+        }
+      }
+      throw e;
+    }
     const error = await response.json().catch(() => ({}));
     throw new Error(error.message || 'API request failed');
   }
@@ -18,6 +32,8 @@ const handleResponse = async (response) => {
 };
 
 export const api = {
+  isDemoMode: () => usingDemoData,
+
   // Member endpoints - falls back to dummy data on API error
   getMembers: async () => {
     try {
@@ -26,6 +42,9 @@ export const api = {
       usingDemoData = false;
       return data;
     } catch (error) {
+      if (error?.code === 401 || error?.code === 403) {
+        throw error;
+      }
       console.warn('API unavailable, using demo data:', error.message);
       usingDemoData = true;
       if (typeof window !== 'undefined') {

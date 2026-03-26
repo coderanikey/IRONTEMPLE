@@ -1,7 +1,11 @@
 import connectDB from '../../../lib/mongodb';
 import Payment from '../../../models/Payment';
+import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
+  const session = requireAuth(req);
+  if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
+
   await connectDB();
   const { uniqueId } = req.query;
 

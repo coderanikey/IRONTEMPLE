@@ -41,7 +41,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
         loadPendingPayments();
         onPaymentProcessed && onPaymentProcessed();
       } catch (error) {
-        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to discontinue member: ' + error.message);
+        alert(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to discontinue member: ' + error.message);
       }
     }
   };
@@ -97,18 +97,16 @@ const PendingPayments = ({ onPaymentProcessed }) => {
                 <td>{getStatusBadge(member.daysOverdue)}</td>
                 <td>₹{member.monthlyFee || 1000}</td>
                 <td>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="action-row">
                     <button
                       className="btn btn-success"
                       onClick={() => handlePayClick(member)}
-                      style={{ padding: '6px 12px', fontSize: '14px' }}
                     >
                       Pay Now
                     </button>
                     <button
                       className="btn btn-danger"
                       onClick={() => handleDiscontinue(member.uniqueId)}
-                      style={{ padding: '6px 12px', fontSize: '14px' }}
                     >
                       Discontinue
                     </button>

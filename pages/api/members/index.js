@@ -1,7 +1,11 @@
 import connectDB from '../../../lib/mongodb';
 import Member from '../../../models/Member';
+import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
+  const session = requireAuth(req);
+  if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
+
   await connectDB();
 
   if (req.method === 'GET') {

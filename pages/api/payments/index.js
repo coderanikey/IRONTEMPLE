@@ -1,8 +1,12 @@
 import connectDB from '../../../lib/mongodb';
 import Payment from '../../../models/Payment';
 import Member from '../../../models/Member';
+import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
+  const session = requireAuth(req);
+  if (!session?.userId) return res.status(401).json({ message: 'Unauthorized' });
+
   await connectDB();
 
   if (req.method === 'GET') {
@@ -23,6 +27,9 @@ export default async function handler(req, res) {
       if (!member) {
         return res.status(404).json({ message: 'Member not found' });
       }
+
+      // Keep only the latest payment record (remove old ones)
+      await Payment.deleteMany({ uniqueId });
 
       // Create payment record
       const payment = new Payment({

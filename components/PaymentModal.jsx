@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { paymentService } from '../src/services/paymentService';
 import { api } from '../src/api/api';
+import { useRouter } from 'next/router';
 import { format, addMonths, startOfMonth } from 'date-fns';
 import { preventZoom, restoreZoom } from './MobileOptimized';
+import { useToast } from '../src/ui/toast';
 
 const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
+  const router = useRouter();
+  const { push: toast } = useToast();
   const [selectedMonths, setSelectedMonths] = useState(1);
   const [amountPaid, setAmountPaid] = useState('');
   const [customDate, setCustomDate] = useState('');
@@ -55,7 +59,7 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
         ? startOfMonth(new Date(customDate)).toISOString()
         : new Date().toISOString();
 
-      await paymentService.processPayment(
+      const payment = await paymentService.processPayment(
         member.uniqueId, 
         selectedMonths, 
         parseFloat(amountPaid),
@@ -64,19 +68,24 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
       );
       
       setSuccess(`Payment of ₹${amountPaid} (${paymentMethod.toUpperCase()}) processed successfully!`);
+      toast({ type: 'success', title: 'Payment success', message: `Receipt ready for ${member.name}` });
       
       setTimeout(() => {
         onPaymentComplete();
+        if (payment?._id) {
+          router.push(`/receipt/${payment._id}`);
+        }
       }, 1500);
     } catch (err) {
-      setError(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to process payments.' : (err.message || 'Payment processing failed'));
+      setError(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to process payments.' : (err.message || 'Payment processing failed'));
+      toast({ type: 'error', title: 'Payment failed', message: err.message || 'Payment processing failed' });
       setProcessing(false);
     }
   };
 
   return (
     <div className="modal">
-      <div className="modal-content" style={{ maxWidth: '600px' }}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Process Payment</h2>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -129,7 +138,7 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
         <div style={{ marginBottom: '20px' }}>
           <label htmlFor="amount">Amount Paid (₹) *</label>
           <input
-            type="number"
+            type="text"
             id="amount"
             value={amountPaid}
             onChange={(e) => {
@@ -138,9 +147,8 @@ const PaymentModal = ({ member, onClose, onPaymentComplete }) => {
             }}
             onFocus={preventZoom}
             onBlur={restoreZoom}
+            inputMode="decimal"
             placeholder={`Expected: ₹${calculateExpectedAmount()}`}
-            min="0"
-            step="100"
             required
           />
           <small style={{ color: '#6b7280', display: 'block', marginTop: '-8px', marginBottom: '12px' }}>

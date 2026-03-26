@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { api } from '../src/api/api';
+import TopBar from '../components/TopBar';
 
 // Dynamically import components to avoid SSR issues
 const MemberAdmission = dynamic(() => import('../components/MemberAdmission'), { ssr: false });
@@ -25,6 +25,7 @@ export default function Home() {
 
   return (
     <div className="container">
+      <TopBar />
       {showDemoBanner && (
         <div className="demo-banner">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

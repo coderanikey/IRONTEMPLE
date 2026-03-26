@@ -1,13 +1,14 @@
 {
-  "name": "IRON TEMPLE - Gym Management",
+  "name": "IRON TEMPLE - Gym Management System",
   "short_name": "IRON TEMPLE",
   "description": "Premium Gym Management System",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
   "orientation": "portrait-primary",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -23,7 +24,14 @@
     }
   ],
   "categories": ["health", "business"],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Pending Payments",

@@ -41,7 +41,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
         loadDiscontinuedMembers();
         onMemberUpdated && onMemberUpdated();
       } catch (error) {
-        alert(api.usingDemoData ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
+        alert(api.isDemoMode() ? 'Demo mode: Connect MongoDB in .env.local to save changes.' : 'Failed to delete member: ' + error.message);
       }
     }
   };
