@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 * {
   margin: 0;
   padding: 0;
@@ -518,6 +514,91 @@ tbody tr:last-child td {
   .modal-content {
     padding: 24px 20px;
     margin: 0 12px;
+  }
+}
+
+.modal-content-wide {
+  max-width: 920px;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-summary {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(17, 24, 39, 0.04);
+  color: var(--text-primary);
+}
+
+.modal-summary p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.modal-summary p + p {
+  margin-top: 8px;
+}
+
+.modal-toggle-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.modal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.helper-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(17, 24, 39, 0.55);
+  margin-top: 6px;
+}
+
+.modal-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  /* True mobile-friendly modal: full-screen sheet */
+  .modal {
+    padding: 0;
+  }
+  .modal-content {
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    padding: 18px 16px;
+  }
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

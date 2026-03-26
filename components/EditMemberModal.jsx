@@ -102,49 +102,30 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-6"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-black/10"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-3 p-4 sm:p-6 border-b border-black/10">
-          <div className="min-w-0">
-            <h2 className="m-0 text-[20px] sm:text-[24px] font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-amber-600 bg-clip-text text-transparent">
-              Edit Member
-            </h2>
-            <div className="mt-2 text-[13px] sm:text-[14px] text-slate-700">
-              <div className="font-semibold truncate">{member.name}</div>
-              <div className="text-slate-500">
-                Member ID: <span className="font-semibold text-slate-700">{member.uniqueId}</span>
-              </div>
+    <div className="modal" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="modal-content modal-content-wide" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <div style={{ minWidth: 0 }}>
+            <h2>Edit Member</h2>
+            <div className="member-info" style={{ marginTop: 10 }}>
+              <h3 style={{ marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {member.name}
+              </h3>
+              <p style={{ margin: 0 }}>
+                Member ID: <strong>{member.uniqueId}</strong>
+              </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-xl bg-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white transition"
-            aria-label="Close"
-          >
+          <button className="close-btn" onClick={onClose} type="button" aria-label="Close">
             ×
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <form onSubmit={onSubmit}>
+          <div className="form-grid">
             <div>
               <label htmlFor="name">Full Name *</label>
-              <input
-                id="name"
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-                required
-                className="!mb-0"
-              />
+              <input id="name" value={form.name} onChange={(e) => setField('name', e.target.value)} required />
             </div>
             <div>
               <label htmlFor="phone">Phone (10 digits) *</label>
@@ -155,19 +136,12 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
                 maxLength={10}
                 pattern="[0-9]{10}"
                 required
-                className="!mb-0"
               />
             </div>
 
             <div>
               <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setField('email', e.target.value)}
-                className="!mb-0"
-              />
+              <input id="email" type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} />
             </div>
             <div>
               <label htmlFor="monthlyFee">Monthly Fee (₹) *</label>
@@ -178,18 +152,12 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
                 value={form.monthlyFee}
                 onChange={(e) => setField('monthlyFee', e.target.value)}
                 required
-                className="!mb-0"
               />
             </div>
 
-            <div className="sm:col-span-2">
+            <div style={{ gridColumn: '1 / -1' }}>
               <label htmlFor="address">Address</label>
-              <input
-                id="address"
-                value={form.address}
-                onChange={(e) => setField('address', e.target.value)}
-                className="!mb-0"
-              />
+              <input id="address" value={form.address} onChange={(e) => setField('address', e.target.value)} />
             </div>
 
             <div>
@@ -200,7 +168,6 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
                 value={form.joinDate}
                 onChange={(e) => setField('joinDate', e.target.value)}
                 required
-                className="!mb-0"
               />
             </div>
             <div>
@@ -210,21 +177,16 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
                 type="date"
                 value={form.nextDueDate}
                 onChange={(e) => setField('nextDueDate', e.target.value)}
-                className="!mb-0"
               />
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <label className="inline-flex items-center gap-2 text-[14px] text-slate-700 font-semibold">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(e) => setField('isActive', e.target.checked)}
-              />
+          <div className="modal-toggle-row">
+            <label className="modal-toggle">
+              <input type="checkbox" checked={form.isActive} onChange={(e) => setField('isActive', e.target.checked)} />
               <span>Active</span>
             </label>
-            <label className="inline-flex items-center gap-2 text-[14px] text-slate-700 font-semibold">
+            <label className="modal-toggle">
               <input
                 type="checkbox"
                 checked={form.isDiscontinued}
@@ -234,9 +196,9 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
             </label>
           </div>
 
-          {error ? <div className="form-error mt-4">{error}</div> : null}
+          {error ? <div className="form-error" style={{ marginTop: 16 }}>{error}</div> : null}
 
-          <div className="mt-5 flex flex-col-reverse sm:flex-row gap-3 justify-end">
+          <div className="modal-actions">
             <button className="btn btn-secondary" type="button" onClick={onClose} disabled={saving}>
               Cancel
             </button>
