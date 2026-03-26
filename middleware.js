@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const PUBLIC_PATHS = [
+  '/',
   '/login',
   '/register',
   '/check',
@@ -48,7 +49,7 @@ export function middleware(req) {
   const token = req.cookies.get('it_token')?.value;
   if (!token) {
     const url = req.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = '/';
     url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
   }

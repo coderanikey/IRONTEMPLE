@@ -27,7 +27,7 @@ export default function TopBar() {
               className="btn btn-secondary"
               onClick={async () => {
                 await logout();
-                router.push('/login');
+                router.push('/');
               }}
               style={{ padding: '10px 16px' }}
             >
@@ -36,7 +36,7 @@ export default function TopBar() {
           </>
         ) : (
           <>
-            <Link className="topbar-link" href="/login">
+            <Link className="topbar-link" href="/">
               Login
             </Link>
             <Link className="btn btn-primary" href="/register" style={{ textDecoration: 'none' }}>

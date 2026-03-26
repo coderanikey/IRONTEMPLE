@@ -91,7 +91,7 @@ export default function CheckValidityPage() {
         ) : null}
 
         <div style={{ marginTop: 16, color: 'var(--text-secondary)', fontSize: 14 }}>
-          Go to <Link href="/login">Login</Link> or <Link href="/register">Register</Link>
+          Go to <Link href="/">Login</Link> or <Link href="/register">Register</Link>
         </div>
       </div>
     </div>

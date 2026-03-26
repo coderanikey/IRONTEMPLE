@@ -18,9 +18,9 @@ const handleResponse = async (response) => {
       e.code = response.status;
       if (typeof window !== 'undefined') {
         const path = window.location?.pathname || '/';
-        const isAuthPage = path === '/login' || path === '/register';
+        const isAuthPage = path === '/' || path === '/register';
         if (!isAuthPage) {
-          window.location.assign(`/login?next=${encodeURIComponent(path)}`);
+          window.location.assign(`/?next=${encodeURIComponent(path)}`);
         }
       }
       throw e;

@@ -7,6 +7,8 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
   const [discontinuedMembers, setDiscontinuedMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadDiscontinuedMembers();
@@ -17,6 +19,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
       const allMembers = await api.getMembers();
       const discontinued = allMembers.filter(m => m.isDiscontinued);
       setDiscontinuedMembers(discontinued);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error loading discontinued members:', error);
     }
@@ -58,10 +61,15 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
     );
   }
 
+  const totalPages = Math.ceil(discontinuedMembers.length / itemsPerPage);
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const paginatedMembers = discontinuedMembers.slice(startIdx, endIdx);
+
   return (
     <>
       <div className="card">
-        <h2>Discontinued Members</h2>
+        <h2>Discontinued Members ({discontinuedMembers.length})</h2>
         <p className="card-description">
           Members who have been discontinued. Click "Continue" to resume their membership with new payment.
         </p>
@@ -80,7 +88,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
             </tr>
           </thead>
           <tbody>
-            {discontinuedMembers.map((member) => (
+            {paginatedMembers.map((member) => (
               <tr key={member.uniqueId}>
                 <td>{member.uniqueId}</td>
                 <td>{member.name}</td>
@@ -91,18 +99,16 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
                 <td>{member.discontinuedDate ? format(new Date(member.discontinuedDate), 'dd MMM yyyy') : 'N/A'}</td>
                 <td>₹{member.monthlyFee || 1000}</td>
                 <td>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="action-row">
                     <button
                       className="btn btn-success"
                       onClick={() => handleContinue(member)}
-                      style={{ padding: '6px 12px', fontSize: '14px' }}
                     >
                       Continue
                     </button>
                     <button
                       className="btn btn-danger"
                       onClick={() => handleDelete(member.uniqueId)}
-                      style={{ padding: '6px 12px', fontSize: '14px' }}
                     >
                       Delete
                     </button>
@@ -112,6 +118,35 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
             ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ← Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                className={`btn ${currentPage === page ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setCurrentPage(page)}
+                style={{ minWidth: '40px', padding: '10px' }}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
 
       {showPaymentModal && selectedMember && (

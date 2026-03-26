@@ -9,6 +9,8 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadMe = async () => {
     setLoadingMe(true);
@@ -32,6 +34,7 @@ export default function AdminUsersPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || 'Failed to load users');
       setUsers(Array.isArray(data) ? data : []);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,7 +49,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (loadingMe) return;
     if (!me) {
-      router.replace('/login');
+      router.replace('/');
       return;
     }
     if (!me.isAdmin) {
@@ -68,6 +71,11 @@ export default function AdminUsersPage() {
       setError(err.message);
     }
   };
+
+  const totalPages = Math.ceil(users.length / itemsPerPage) || 1;
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const paginatedUsers = users.slice(startIdx, endIdx);
 
   return (
     <div className="container">
@@ -109,7 +117,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {paginatedUsers.map((u) => (
                 <tr key={u.id}>
                   <td>{u.email}</td>
                   <td>{u.isAdmin ? <span className="badge badge-success">Admin</span> : <span className="badge badge-warning">User</span>}</td>
@@ -123,6 +131,35 @@ export default function AdminUsersPage() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {users.length > itemsPerPage && (
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ← Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                className={`btn ${currentPage === page ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setCurrentPage(page)}
+                style={{ minWidth: '40px', padding: '10px' }}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next →
+            </button>
+          </div>
         )}
       </div>
     </div>

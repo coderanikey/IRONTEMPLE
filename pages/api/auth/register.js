@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
+import AppConfig from '../../../models/AppConfig';
 import { setAuthCookie, signAuthToken, setCorsHeaders, handleCorsPreFlight } from '../../../lib/auth';
-
-const INVITE_KEY = 'Aniket Parkash';
 
 export default async function handler(req, res) {
   setCorsHeaders(res);
@@ -26,9 +25,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Invite key is required' });
     }
 
-    // Verify against hardcoded invite key
-    if (rawInviteKey !== INVITE_KEY) {
-      return res.status(403).json({ message: 'Invalid invite key' });
+    const userCount = await User.countDocuments();
+
+    // Invite key comes from DB. If not set yet, first registration initializes it.
+    const cfg = await AppConfig.findOne({ key: 'main' });
+    if (!cfg) {
+      if (userCount !== 0) {
+        return res.status(500).json({ message: 'Server misconfigured: invite key not initialized' });
+      }
+      const inviteKeyHash = await bcrypt.hash(rawInviteKey, 12);
+      await AppConfig.create({ key: 'main', inviteKeyHash });
+    } else {
+      const ok = await bcrypt.compare(rawInviteKey, cfg.inviteKeyHash);
+      if (!ok) {
+        return res.status(403).json({ message: 'Invalid invite key' });
+      }
     }
 
     const normalizedEmail = String(email || '').trim().toLowerCase().replace(/\^/g, '');
@@ -47,7 +58,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    const userCount = await User.countDocuments();
     const isAdmin = userCount === 0;
 
     const passwordHash = await bcrypt.hash(rawPassword, 12);
