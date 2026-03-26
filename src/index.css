@@ -521,6 +521,31 @@ tbody tr:last-child td {
   max-width: 920px;
 }
 
+.modal-fullscreen {
+  padding: 0;
+  align-items: stretch;
+}
+
+.modal-content-fullscreen {
+  height: 100vh;
+  max-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.modal-content-fullscreen .modal-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
+}
+
+.modal-content-fullscreen form {
+  padding-bottom: 12px;
+}
+
 .modal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

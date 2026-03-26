@@ -102,8 +102,8 @@ export default function EditMemberModal({ member, onClose, onSaved }) {
   };
 
   return (
-    <div className="modal" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="modal-content modal-content-wide" onClick={(e) => e.stopPropagation()}>
+    <div className="modal modal-fullscreen" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="modal-content modal-content-wide modal-content-fullscreen" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div style={{ minWidth: 0 }}>
             <h2>Edit Member</h2>

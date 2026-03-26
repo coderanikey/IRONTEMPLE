@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import TopBar from '../components/TopBar';
+import { useRouter } from 'next/router';
+import { useAuth } from '../src/auth/useAuth';
+import ValidityCheckCard from '../components/ValidityCheckCard';
 
 // Dynamically import components to avoid SSR issues
 const MemberAdmission = dynamic(() => import('../components/MemberAdmission'), { ssr: false });
@@ -9,9 +12,23 @@ const MemberList = dynamic(() => import('../components/MemberList'), { ssr: fals
 const DiscontinuedMembers = dynamic(() => import('../components/DiscontinuedMembers'), { ssr: false });
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { user, loading: authLoading, refresh } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
   const [refreshKey, setRefreshKey] = useState(0);
   const [showDemoBanner, setShowDemoBanner] = useState(false);
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace('/');
+    }
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const handleDemoMode = () => setShowDemoBanner(true);
@@ -67,6 +84,12 @@ export default function Dashboard() {
         >
           Discontinued
         </button>
+        <button
+          className={`nav-tab ${activeTab === 'validity' ? 'active' : ''}`}
+          onClick={() => setActiveTab('validity')}
+        >
+          Check Validity
+        </button>
       </div>
 
       {activeTab === 'pending' && (
@@ -84,6 +107,8 @@ export default function Dashboard() {
       {activeTab === 'discontinued' && (
         <DiscontinuedMembers onMemberUpdated={handleRefresh} />
       )}
+
+      {activeTab === 'validity' && <ValidityCheckCard />}
     </div>
   );
 }

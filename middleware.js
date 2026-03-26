@@ -20,6 +20,15 @@ const PUBLIC_API_PATHS = [
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
+  const token = req.cookies.get('it_token')?.value;
+
+  // If already logged in, opening "/" should go to dashboard.
+  if (pathname === '/' && token) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
   // Allow all internal Next.js routes
   if (
     pathname.startsWith('/_next') ||
@@ -46,7 +55,6 @@ export function middleware(req) {
   }
 
   // Redirect unauthenticated users to login
-  const token = req.cookies.get('it_token')?.value;
   if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = '/';
