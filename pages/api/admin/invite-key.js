@@ -19,6 +19,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 
+  // Invite key is hardcoded (per request). Keep endpoint but make it explicit.
+  return res.status(410).json({
+    message: 'Invite key is hardcoded in the codebase. Change it in source and redeploy.',
+  });
+
   const newKey = String(req.body?.inviteKey || '').trim();
   if (!newKey || newKey.length < 4) {
     return res.status(400).json({ message: 'Invite key must be at least 4 characters' });
