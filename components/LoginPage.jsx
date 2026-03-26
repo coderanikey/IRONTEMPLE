@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useToast } from '../src/ui/toast';
+
+const TOKEN_STORAGE_KEY = 'it_token';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,6 +12,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // If token exists, try to reuse session (no re-login).
+    const token = typeof window !== 'undefined' ? window.localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        if (cancelled) return;
+        const next =
+          typeof router.query.next === 'string' && router.query.next ? router.query.next : '/dashboard';
+        router.replace(next);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +47,9 @@ export default function LoginPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || 'Login failed');
+      if (typeof window !== 'undefined' && data.token) {
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      }
       toast({ type: 'success', title: 'Login success', message: 'Welcome back!' });
       const next =
         typeof router.query.next === 'string' && router.query.next

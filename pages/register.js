@@ -26,6 +26,9 @@ export default function RegisterPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || 'Registration failed');
+      if (typeof window !== 'undefined' && data.token) {
+        window.localStorage.setItem('it_token', data.token);
+      }
       toast({ type: 'success', title: 'Account created', message: 'You are now logged in.' });
       const next = typeof router.query.next === 'string' ? router.query.next : '/dashboard';
       router.push(next);

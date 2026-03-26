@@ -4,6 +4,7 @@
 import { dummyMembers } from '../data/dummyData';
 
 const API_BASE_URL = typeof window !== 'undefined' ? '' : 'http://localhost:3000';
+const TOKEN_STORAGE_KEY = 'it_token';
 
 // Set to true when falling back to dummy data (for UI banner)
 export let usingDemoData = false;
@@ -31,13 +32,28 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
+function getAuthHeaders() {
+  if (typeof window === 'undefined') return {};
+  const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!token) return {};
+  return { Authorization: `Bearer ${token}` };
+}
+
+async function authFetch(url, options = {}) {
+  const headers = {
+    ...(options.headers || {}),
+    ...getAuthHeaders(),
+  };
+  return fetch(url, { ...options, headers });
+}
+
 export const api = {
   isDemoMode: () => usingDemoData,
 
   // Member endpoints - falls back to dummy data on API error
   getMembers: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/members`);
+      const response = await authFetch(`${API_BASE_URL}/api/members`);
       const data = await handleResponse(response);
       usingDemoData = false;
       return data;
@@ -55,7 +71,7 @@ export const api = {
   },
 
   createMember: async (member) => {
-    const response = await fetch(`${API_BASE_URL}/api/members`, {
+    const response = await authFetch(`${API_BASE_URL}/api/members`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(member),
@@ -64,7 +80,7 @@ export const api = {
   },
 
   updateMember: async (uniqueId, updates) => {
-    const response = await fetch(`${API_BASE_URL}/api/members/${uniqueId}`, {
+    const response = await authFetch(`${API_BASE_URL}/api/members/${uniqueId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
@@ -73,7 +89,7 @@ export const api = {
   },
 
   deleteMember: async (uniqueId) => {
-    const response = await fetch(`${API_BASE_URL}/api/members/${uniqueId}`, {
+    const response = await authFetch(`${API_BASE_URL}/api/members/${uniqueId}`, {
       method: 'DELETE',
     });
     return handleResponse(response);
@@ -81,12 +97,12 @@ export const api = {
 
   // Payment endpoints
   getPayments: async () => {
-    const response = await fetch(`${API_BASE_URL}/api/payments`);
+    const response = await authFetch(`${API_BASE_URL}/api/payments`);
     return handleResponse(response);
   },
 
   createPayment: async (payment) => {
-    const response = await fetch(`${API_BASE_URL}/api/payments`, {
+    const response = await authFetch(`${API_BASE_URL}/api/payments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payment),
@@ -95,7 +111,7 @@ export const api = {
   },
 
   getMemberPayments: async (uniqueId) => {
-    const response = await fetch(`${API_BASE_URL}/api/payments/${uniqueId}`);
+    const response = await authFetch(`${API_BASE_URL}/api/payments/${uniqueId}`);
     return handleResponse(response);
   },
 };

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+const TOKEN_STORAGE_KEY = 'it_token';
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -7,7 +9,8 @@ export function useAuth() {
   const refresh = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/auth/me');
+      const token = typeof window !== 'undefined' ? window.localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+      const res = await fetch('/api/auth/me', token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
       if (!res.ok) {
         setUser(null);
         return;
@@ -24,6 +27,9 @@ export function useAuth() {
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
     setUser(null);
   };
 

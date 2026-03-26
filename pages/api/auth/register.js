@@ -75,6 +75,7 @@ export default async function handler(req, res) {
 
     return res.status(201).json({
       user: { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
+      token,
     });
   } catch (error) {
     console.error('Registration error:', error);
