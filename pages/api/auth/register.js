@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
-import AppConfig from '../../../models/AppConfig';
 import { setAuthCookie, signAuthToken, setCorsHeaders, handleCorsPreFlight } from '../../../lib/auth';
+
+const INVITE_KEY = 'Aniket Parkash';
 
 export default async function handler(req, res) {
   setCorsHeaders(res);
@@ -25,6 +26,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Invite key is required' });
     }
 
+    // Verify against hardcoded invite key
+    if (rawInviteKey !== INVITE_KEY) {
+      return res.status(403).json({ message: 'Invalid invite key' });
+    }
+
     const normalizedEmail = String(email || '').trim().toLowerCase().replace(/\^/g, '');
     const rawPassword = String(password || '');
 
@@ -42,21 +48,30 @@ export default async function handler(req, res) {
     }
 
     const userCount = await User.countDocuments();
+    const isAdmin = userCount === 0;
 
-    // Invite key comes from DB (Atlas). If not set yet, first registration initializes it.
-    const cfg = await AppConfig.findOne({ key: 'main' });
-    if (!cfg) {
-      if (userCount !== 0) {
-        return res.status(500).json({ message: 'Server misconfigured: invite key not initialized' });
-      }
-      const inviteKeyHash = await bcrypt.hash(rawInviteKey, 12);
-      await AppConfig.create({ key: 'main', inviteKeyHash });
-    } else {
-      const ok = await bcrypt.compare(rawInviteKey, cfg.inviteKeyHash);
-      if (!ok) {
-        return res.status(403).json({ message: 'Invalid invite key' });
-      }
-    }
+    const passwordHash = await bcrypt.hash(rawPassword, 12);
+    const user = await User.create({
+      email: normalizedEmail,
+      passwordHash,
+      isAdmin,
+    });
+
+    const token = signAuthToken({
+      userId: user._id.toString(),
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+    setAuthCookie(res, token);
+
+    return res.status(201).json({
+      user: { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(500).json({ message: 'Registration failed', error: error.message });
+  }
+}
 
     const passwordHash = await bcrypt.hash(rawPassword, 12);
 

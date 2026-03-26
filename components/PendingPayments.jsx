@@ -8,6 +8,8 @@ const PendingPayments = ({ onPaymentProcessed }) => {
   const [pendingMembers, setPendingMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadPendingPayments();
@@ -16,6 +18,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
   const loadPendingPayments = async () => {
     const pending = await paymentService.getPendingMembers();
     setPendingMembers(pending);
+    setCurrentPage(1);
   };
 
   const handlePayClick = (member) => {
@@ -68,10 +71,16 @@ const PendingPayments = ({ onPaymentProcessed }) => {
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(pendingMembers.length / itemsPerPage);
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const paginatedMembers = pendingMembers.slice(startIdx, endIdx);
+
   return (
     <>
       <div className="card">
-        <h2>Pending Payments - {format(new Date(), 'MMMM yyyy')}</h2>
+        <h2>Pending Payments - {format(new Date(), 'MMMM yyyy')} ({pendingMembers.length})</h2>
         <p className="card-description">
           Members with pending payments for this month
         </p>
@@ -88,7 +97,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
             </tr>
           </thead>
           <tbody>
-            {pendingMembers.map((member) => (
+            {paginatedMembers.map((member) => (
               <tr key={member.uniqueId}>
                 <td>{member.uniqueId}</td>
                 <td>{member.name}</td>
@@ -116,6 +125,35 @@ const PendingPayments = ({ onPaymentProcessed }) => {
             ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ← Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                className={`btn ${currentPage === page ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setCurrentPage(page)}
+                style={{ minWidth: '40px', padding: '10px' }}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              className="btn btn-secondary"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next →
+            </button>
+          </div>
+        )}
       </div>
 
       {showPaymentModal && selectedMember && (
