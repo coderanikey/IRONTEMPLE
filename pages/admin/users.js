@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+        <div className="adminusers-header">
           <h2 style={{ marginBottom: 0 }}>Users</h2>
           <button className="btn btn-secondary" onClick={loadUsers} disabled={loadingUsers}>
             {loadingUsers ? 'Refreshing…' : 'Refresh'}
@@ -107,7 +107,36 @@ export default function AdminUsersPage() {
             <p>Create the first user from the Register page.</p>
           </div>
         ) : (
-          <table>
+          <>
+            {/* Mobile view */}
+            <div className="adminusers-mobile">
+              {paginatedUsers.map((u) => (
+                <div key={u.id} className="adminusers-card">
+                  <div className="adminusers-card-top">
+                    <div className="adminusers-email">{u.email}</div>
+                    <div>
+                      {u.isAdmin ? (
+                        <span className="badge badge-success">Admin</span>
+                      ) : (
+                        <span className="badge badge-warning">User</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="adminusers-meta">
+                    <div className="adminusers-k">Created</div>
+                    <div className="adminusers-v">{u.createdAt ? new Date(u.createdAt).toLocaleString() : '—'}</div>
+                  </div>
+                  <div className="adminusers-actions">
+                    <button className="btn btn-danger" onClick={() => deleteUser(u.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop/tablet view */}
+            <table className="adminusers-table">
             <thead>
               <tr>
                 <th>Email</th>
@@ -130,11 +159,12 @@ export default function AdminUsersPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </>
         )}
 
         {users.length > itemsPerPage && (
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="memberlist-pagination">
             <button
               className="btn btn-secondary"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}

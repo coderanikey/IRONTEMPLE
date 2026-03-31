@@ -10,6 +10,7 @@ export default function LoginPage() {
   const { push: toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -67,6 +68,9 @@ export default function LoginPage() {
   return (
     <div className="container">
       <div className="hero-header">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
+          <img src="/Logo_gym.png" alt="IRON TEMPLE" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
+        </div>
         <h1 className="hero-title">IRON TEMPLE GYM</h1>
         <p className="hero-subtitle">Owners: Pankaj • Ajit Kumar</p>
         <p className="hero-subtitle" style={{ marginTop: 6 }}>
@@ -83,17 +87,70 @@ export default function LoginPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
 
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="input-with-action">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              className="input-action"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M4 4l16 16"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
 
           {error ? <div className="form-error">{error}</div> : null}
 
@@ -103,6 +160,9 @@ export default function LoginPage() {
 
           <div style={{ marginTop: 14, color: 'var(--text-secondary)', fontSize: 14 }}>
             New here? <Link href="/register">Create account</Link>
+          </div>
+          <div style={{ marginTop: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
+            Forgot password? <Link href="/reset-password">Reset here</Link>
           </div>
           <div style={{ marginTop: 10, color: 'var(--text-secondary)', fontSize: 14 }}>
             Want to check validity? <Link href="/check">Check by phone</Link>

@@ -13,6 +13,11 @@ const MemberList = ({ refreshTrigger }) => {
 
   useEffect(() => {
     loadMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    loadMembers();
   }, [refreshTrigger]);
 
   const loadMembers = async () => {
@@ -82,9 +87,9 @@ const MemberList = ({ refreshTrigger }) => {
 
   return (
     <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div className="memberlist-header">
         <h2>All Members ({visibleMembers.length})</h2>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div className="memberlist-controls">
           <input
             value={query}
             onChange={(e) => {
@@ -92,7 +97,7 @@ const MemberList = ({ refreshTrigger }) => {
               setCurrentPage(1);
             }}
             placeholder="Search by name or phone…"
-            style={{ width: 260, marginBottom: 0 }}
+            className="memberlist-search"
           />
           <select
             value={filter}
@@ -100,7 +105,7 @@ const MemberList = ({ refreshTrigger }) => {
               setFilter(e.target.value);
               setCurrentPage(1);
             }}
-            style={{ width: 'auto', padding: '12px 14px', marginBottom: 0 }}
+            className="memberlist-filter"
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -116,7 +121,109 @@ const MemberList = ({ refreshTrigger }) => {
         </div>
       ) : (
         <>
-          <table>
+          {/* Mobile view: card list (prevents squished table columns) */}
+          <div className="memberlist-mobile">
+            {paginatedMembers.map((member) => (
+              <div
+                key={member.uniqueId}
+                className="memberlist-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => goEdit(member.uniqueId)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') goEdit(member.uniqueId);
+                }}
+                title="Tap to edit member"
+              >
+                <div className="memberlist-card-top">
+                  <div className="memberlist-card-title">
+                    <div className="memberlist-card-name">{member.name}</div>
+                    <div className="memberlist-card-sub">{member.uniqueId}</div>
+                  </div>
+                  <div>
+                    {member.isActive ? (
+                      <span className="badge badge-success">Active</span>
+                    ) : (
+                      <span className="badge badge-danger">Inactive</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="memberlist-card-grid">
+                  <div className="memberlist-kv">
+                    <div className="memberlist-k">Phone</div>
+                    <div className="memberlist-v">{member.phone || 'N/A'}</div>
+                  </div>
+                  <div className="memberlist-kv">
+                    <div className="memberlist-k">Email</div>
+                    <div className="memberlist-v">{member.email || 'N/A'}</div>
+                  </div>
+                  <div className="memberlist-kv">
+                    <div className="memberlist-k">Join</div>
+                    <div className="memberlist-v">{format(new Date(member.joinDate), 'dd MMM yyyy')}</div>
+                  </div>
+                  <div className="memberlist-kv">
+                    <div className="memberlist-k">Fee</div>
+                    <div className="memberlist-v">₹{member.monthlyFee || 1000}</div>
+                  </div>
+                </div>
+
+                <div className="memberlist-card-actions action-row">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.assign(`/member-card/${member.uniqueId}`);
+                    }}
+                  >
+                    ID Card
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goEdit(member.uniqueId);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  {member.isActive ? (
+                    <button
+                      className="btn btn-danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeactivate(member.uniqueId);
+                      }}
+                    >
+                      Deactivate
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-success"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleActivate(member.uniqueId);
+                      }}
+                    >
+                      Activate
+                    </button>
+                  )}
+                  <button
+                    className="btn btn-danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(member.uniqueId);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop/tablet view: table */}
+          <table className="memberlist-table">
             <thead>
               <tr>
                 <th>Unique ID</th>
@@ -208,7 +315,7 @@ const MemberList = ({ refreshTrigger }) => {
           </table>
 
           {totalPages > 1 && (
-            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="memberlist-pagination">
               <button
                 className="btn btn-secondary"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}

@@ -73,7 +73,63 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
         <p className="card-description">
           Members who have been discontinued. Click "Continue" to resume their membership with new payment.
         </p>
-        <table>
+        {/* Mobile view */}
+        <div className="discontinued-mobile">
+          {paginatedMembers.map((member) => (
+            <div key={member.uniqueId} className="discontinued-card">
+              <div className="discontinued-card-top">
+                <div className="discontinued-card-title">
+                  <div className="discontinued-card-name">{member.name}</div>
+                  <div className="discontinued-card-sub">{member.uniqueId}</div>
+                </div>
+                <span className="badge badge-danger">Discontinued</span>
+              </div>
+
+              <div className="discontinued-card-grid">
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Phone</div>
+                  <div className="discontinued-v">{member.phone || 'N/A'}</div>
+                </div>
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Email</div>
+                  <div className="discontinued-v">{member.email || 'N/A'}</div>
+                </div>
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Admission</div>
+                  <div className="discontinued-v">{format(new Date(member.joinDate), 'dd MMM yyyy')}</div>
+                </div>
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Last Payment</div>
+                  <div className="discontinued-v">
+                    {member.lastPaymentDate ? format(new Date(member.lastPaymentDate), 'dd MMM yyyy') : 'N/A'}
+                  </div>
+                </div>
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Discontinued</div>
+                  <div className="discontinued-v">
+                    {member.discontinuedDate ? format(new Date(member.discontinuedDate), 'dd MMM yyyy') : 'N/A'}
+                  </div>
+                </div>
+                <div className="discontinued-kv">
+                  <div className="discontinued-k">Monthly Fee</div>
+                  <div className="discontinued-v">₹{member.monthlyFee || 1000}</div>
+                </div>
+              </div>
+
+              <div className="discontinued-card-actions action-row">
+                <button className="btn btn-success" onClick={() => handleContinue(member)}>
+                  Continue
+                </button>
+                <button className="btn btn-danger" onClick={() => handleDelete(member.uniqueId)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop/tablet view */}
+        <table className="discontinued-table">
           <thead>
             <tr>
               <th>Unique ID</th>
@@ -120,7 +176,7 @@ const DiscontinuedMembers = ({ onMemberUpdated }) => {
         </table>
 
         {totalPages > 1 && (
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="memberlist-pagination">
             <button
               className="btn btn-secondary"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}

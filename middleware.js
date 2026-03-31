@@ -4,11 +4,16 @@ const PUBLIC_PATHS = [
   '/',
   '/login',
   '/register',
+  '/reset-password',
   '/check',
   '/manifest.json',
   '/robots.txt',
   '/icon-192.png',
   '/icon-512.png',
+  '/icon-192.svg',
+  '/icon-512.svg',
+  '/logo.svg',
+  '/Logo_gym.png',
   '/sw.js',
 ];
 
@@ -36,6 +41,12 @@ export function middleware(req) {
     pathname.startsWith('/favicon') ||
     pathname.startsWith('/icons')
   ) {
+    return NextResponse.next();
+  }
+
+  // Allow static assets (anything with a file extension) - avoids redirect loops for icons/manifest/etc.
+  // Examples: /Logo_gym.png, /icon-192.svg, /favicon.ico, /manifest.json, /sw.js
+  if (/\.[a-zA-Z0-9]+$/.test(pathname)) {
     return NextResponse.next();
   }
 

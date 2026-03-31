@@ -1,44 +1,57 @@
 {
   "name": "IRON TEMPLE - Gym Management System",
   "short_name": "IRON TEMPLE",
-  "description": "Premium Gym Management System",
+  "description": "Premium Gym Management System for managing members and payments",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#111827",
   "orientation": "portrait-primary",
+  "background_color": "#0b1020",
+  "theme_color": "#111827",
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/Logo_gym.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/Logo_gym.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "business"],
-  "screenshots": [],
+  "categories": ["health", "business", "productivity"],
+  "screenshots": [
+    {
+      "src": "/Logo_gym.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/Logo_gym.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Pending Payments",
       "short_name": "Pending",
       "description": "View pending payments",
       "url": "/?tab=pending",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/Logo_gym.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Add Member",
       "short_name": "Add",
       "description": "Add new member",
       "url": "/?tab=admission",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/Logo_gym.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

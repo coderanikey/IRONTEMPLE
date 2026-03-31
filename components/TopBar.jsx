@@ -16,6 +16,7 @@ export default function TopBar() {
   return (
     <div className="topbar">
       <div className="topbar-left">
+        <img src="/Logo_gym.png" alt="IRON TEMPLE" className="topbar-logo" title="IRON TEMPLE Gym" />
         <div className="topbar-badge">IRON TEMPLE</div>
       </div>
 

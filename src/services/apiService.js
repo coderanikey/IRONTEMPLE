@@ -2,7 +2,8 @@
 import { api } from '../api/api.js';
 import { storageService as localStorage } from './storageService.js';
 
-const USE_API = import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:3001';
+// For Next.js: Always use the API (it's built-in to the app)
+const USE_API = true;
 
 // Helper to handle API calls with fallbacks
 const apiCall = async (apiFn, localFn, ...args) => {

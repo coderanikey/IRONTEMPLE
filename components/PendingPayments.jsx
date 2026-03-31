@@ -84,7 +84,47 @@ const PendingPayments = ({ onPaymentProcessed }) => {
         <p className="card-description">
           Members with pending payments for this month
         </p>
-        <table>
+        {/* Mobile view */}
+        <div className="pending-mobile">
+          {paginatedMembers.map((member) => (
+            <div key={member.uniqueId} className="pending-card">
+              <div className="pending-card-top">
+                <div className="pending-card-title">
+                  <div className="pending-card-name">{member.name}</div>
+                  <div className="pending-card-sub">{member.uniqueId}</div>
+                </div>
+                <div>{getStatusBadge(member.daysOverdue)}</div>
+              </div>
+
+              <div className="pending-card-grid">
+                <div className="pending-kv">
+                  <div className="pending-k">Phone</div>
+                  <div className="pending-v">{member.phone || 'N/A'}</div>
+                </div>
+                <div className="pending-kv">
+                  <div className="pending-k">Next Due</div>
+                  <div className="pending-v">{format(new Date(member.nextDueDate), 'dd MMM yyyy')}</div>
+                </div>
+                <div className="pending-kv">
+                  <div className="pending-k">Monthly Fee</div>
+                  <div className="pending-v">₹{member.monthlyFee || 1000}</div>
+                </div>
+              </div>
+
+              <div className="pending-card-actions action-row">
+                <button className="btn btn-success" onClick={() => handlePayClick(member)}>
+                  Pay Now
+                </button>
+                <button className="btn btn-danger" onClick={() => handleDiscontinue(member.uniqueId)}>
+                  Discontinue
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop/tablet view */}
+        <table className="pending-table">
           <thead>
             <tr>
               <th>Unique ID</th>
@@ -127,7 +167,7 @@ const PendingPayments = ({ onPaymentProcessed }) => {
         </table>
 
         {totalPages > 1 && (
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="memberlist-pagination">
             <button
               className="btn btn-secondary"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
