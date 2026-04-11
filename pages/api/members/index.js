@@ -33,23 +33,46 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      // Check if member with same uniqueId, aadhar, or mobile already exists
+      const body = req.body || {};
+      const phoneRaw = String(body.mobileNumber || body.phone || '').trim();
+      const phone = phoneRaw.replace(/\D/g, '');
+
+      // Unique ID must be the phone number (10 digits)
+      if (!/^\d{10}$/.test(phone)) {
+        return res.status(400).json({ message: 'Phone number must be exactly 10 digits' });
+      }
+
+      // Clean up aadharNumber - convert empty string to undefined (so sparse index works properly)
+      const aadharRaw = String(body.aadharNumber || '').trim();
+      if (aadharRaw && !/^\d{12}$/.test(aadharRaw)) {
+        return res.status(400).json({ message: 'Aadhar number must be exactly 12 digits' });
+      }
+
+      body.uniqueId = phone;
+      body.idType = 'mobile';
+      body.mobileNumber = phone;
+      body.phone = body.phone || phone;
+      body.aadharNumber = aadharRaw || undefined; // Set to undefined instead of empty string
+
+      // Check if member with same phone number already exists
       const existingMember = await Member.findOne({
-        $or: [
-          { uniqueId: req.body.uniqueId },
-          { aadharNumber: req.body.aadharNumber },
-          { mobileNumber: req.body.mobileNumber }
-        ]
+        mobileNumber: phone
       });
 
       if (existingMember) {
         return res.status(400).json({ 
-          message: 'Member with this ID already exists',
-          existingMember 
+          message: `Member with phone number ${phone} already exists. Existing member: ${existingMember.name} (ID: ${existingMember.uniqueId})`,
+          code: 'DUPLICATE_PHONE',
+          existingMember: {
+            uniqueId: existingMember.uniqueId,
+            name: existingMember.name,
+            phone: existingMember.mobileNumber,
+            email: existingMember.email
+          }
         });
       }
 
-      const member = new Member(req.body);
+      const member = new Member(body);
       await member.save();
       return res.status(201).json(member);
     } catch (error) {

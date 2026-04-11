@@ -21,19 +21,13 @@ const MemberAdmission = ({ onMemberAdded }) => {
   const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
     setError('');
     setSuccess('');
-  };
-
-  const generateUniqueId = () => {
-    // Generate unique ID based on timestamp and random number
-    const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return timestamp.slice(-8) + random;
   };
 
   const validateAadhar = (aadhar) => {
@@ -56,6 +50,7 @@ const MemberAdmission = ({ onMemberAdded }) => {
     }
 
     const phone = String(formData.phone || '').trim();
+    console.log(phone,"djffhdjfdkjh")
     if (!validateMobile(phone)) {
       setError('Phone number must be exactly 10 digits');
       return;
@@ -67,16 +62,12 @@ const MemberAdmission = ({ onMemberAdded }) => {
       return;
     }
 
-    const uniqueId = aadhar ? aadhar : generateUniqueId();
-    const idType = aadhar ? 'aadhar' : 'mobile';
     const months = Math.max(1, Math.min(12, parseInt(formData.paidMonths || '1', 10) || 1));
-
+console.log(phone,"phon")
     try {
       // Create new member
       const newMember = {
         name: formData.name,
-        uniqueId: uniqueId,
-        idType,
         aadharNumber: aadhar || '',
         mobileNumber: phone,
         phone,
@@ -87,7 +78,7 @@ const MemberAdmission = ({ onMemberAdded }) => {
         isDiscontinued: false,
         joinDate: formData.joinDate,
       };
-
+console.log(newMember,"newMember");
       const savedMember = await api.createMember(newMember);
 
       // Calculate next due date by adding months to the join date (preserving the day)
